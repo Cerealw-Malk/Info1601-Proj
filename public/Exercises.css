@@ -1,0 +1,80 @@
+.logo {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.container {
+    padding-top: 0;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.5rem;
+}
+
+.logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-right: 2rem;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.navbar {
+    background-color: white;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    height: 80px;
+}
+
+.nav-link {
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background-color: var(--muted);
+}
+
+.nav-link.active {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 600;
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    background-color: var(--primary);
+    border-radius: 2px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: 2rem;
+    position: relative;
+}
