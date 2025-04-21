@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<script type="module">
+    function showTemplateExercises(templateName, exercises) {
+        const modalContent = `
+            <div class="modal-content">
+                <h2>${templateName} Exercises</h2>
+                <ul>
+                    ${exercises.map(exercise => `<li>${exercise}</li>`).join('')}
+                </ul>
+                <button onclick="closeTemplateModal()">Close</button>
+            </div>
+        `;
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = modalContent;
+        modal.style.display = 'block';
+        modal.id = 'template-modal';
+        document.body.appendChild(modal);
+    }
+
+    function closeTemplateModal() {
+        const modal = document.getElementById('template-modal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    // Add these functions to your existing JavaScript
+    let selectedTemplateExercises = [];
+
+    function showAddTemplateModal() {
+        const modal = document.getElementById('add-template-modal');
+        modal.style.display = 'flex';
+        renderTemplateExerciseList();
+    }
+
+    function closeAddTemplateModal() {
+        const modal = document.getElementById('add-template-modal');
+        modal.style.display = 'none';
+        selectedTemplateExercises = [];
+        document.getElementById('template-name').value = '';
+    }
+
+    function renderTemplateExerciseList() {
+        const searchTerm = document.getElementById('template-exercise-search')?.value?.toLowerCase() || '';
+        const listContainer = document.getElementById('template-exercise-list');
+        
+        const filteredExercises = exercises.filter(exercise => 
+            exercise.name.toLowerCase().includes(searchTerm)
+        );
+        
+        listContainer.innerHTML = filteredExercises.map(exercise => `
+            <div class="exercise-item">
+                <div class="exercise-content" onclick="addExerciseToTemplate('${exercise.name}')">
+                    <h3 class="font-semibold">${exercise.name}</h3>
+                    <p class="text-sm text-muted">Target: ${exercise.target} | Category: ${exercise.category}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function addExerciseToTemplate(exerciseName) {
+        if (!selectedTemplateExercises.includes(exerciseName)) {
+            selectedTemplateExercises.push(exerciseName);
+            renderSelectedTemplateExercises();
+        }
+    }
+
+    function removeExerciseFromTemplate(exerciseName) {
+        selectedTemplateExercises = selectedTemplateExercises.filter(name => name !== exerciseName);
+        renderSelectedTemplateExercises();
+    }
+
+    function renderSelectedTemplateExercises() {
+        const container = document.getElementById('selected-template-exercises');
+        container.innerHTML = selectedTemplateExercises.map(exerciseName => `
+            <div class="selected-exercise">
+                <span>${exerciseName}</span>
+                <button onclick="removeExerciseFromTemplate('${exerciseName}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function saveTemplate() {
+        const templateName = document.getElementById('template-name').value.trim();
+        
+        if (!templateName) {
+            alert('Please enter a template name');
+            return;
+        }
+        
+        if (selectedTemplateExercises.length === 0) {
+            alert('Please select at least one exercise');
+            return;
+        }
+        
+        // Save the template (you can implement storage logic here)
+        const template = {
+            name: templateName,
+            exercises: selectedTemplateExercises
+        };
+        
+        // Store in localStorage (you can modify this to use your preferred storage method)
+        const templates = JSON.parse(localStorage.getItem('customTemplates') || '[]');
+        templates.push(template);
+        localStorage.setItem('customTemplates', JSON.stringify(templates));
+        
+        closeAddTemplateModal();
+        // Optionally refresh the templates display
+        loadCustomTemplates();
+    }
+
+    // Update the existing showTemplateCreator function
+    function showTemplateCreator() {
+        showAddTemplateModal();
+    }
+
+    // Add event listener for search input
+    document.getElementById('template-exercise-search')?.addEventListener('input', renderTemplateExerciseList);
+
+    function editProfile() {
+        const profileModal = document.createElement('div');
+        profileModal.className = 'modal show';
+        profileModal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit Profile</h2>
+                    <button class="close-btn" onclick="closeEditProfileModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="edit-username">Username</label>
+                        <input type="text" id="edit-username" value="${currentUser?.username || ''}" />
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email</label>
+                        <input type="email" id="edit-email" value="${currentUser?.email || ''}" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="saveProfileChanges()">Save Changes</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(profileModal);
+    }
+
+    function closeEditProfileModal() {
+        const modal = document.querySelector('.modal.show');
+        if (modal) modal.remove();
+    }
+
+    function saveProfileChanges() {
+        const newUsername = document.getElementById('edit-username').value.trim();
+        const newEmail = document.getElementById('edit-email').value.trim();
+
+        if (!newUsername || !newEmail) {
+            alert('Please fill in all fields.');
+            return;
+        }
+
+        if (currentUser) {
+            currentUser.username = newUsername;
+            currentUser.email = newEmail;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUserUI();
+            closeEditProfileModal();
+            alert('Profile updated successfully.');
+        } else {
+            alert('No user is logged in.');
+        }
+    }
+</script>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gymmetry - Workout Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo" id="logo">Gymmetry</a>
+                
+                <!-- Desktop Navigation -->
+                <nav class="main-nav">
+                    <a href="#profile" class="nav-link">Profile</a>
+                    <a href="#history" class="nav-link">History</a>
+                    <a href="#start-workout" class="nav-link active">Start Workout</a>
+                    <a href="#exercises" class="nav-link">Exercises</a>
+                </nav>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobile-menu-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <!-- User Profile -->
+                <div class="user-profile" id="user-profile">
+                    <div class="avatar" id="user-avatar">?</div>
+                    <span class="login-status" id="login-status">Logged out</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-header">
+            <span class="logo">Gymmetry</span>
+            <button class="mobile-menu-close" id="mobile-menu-close">&times;</button>
+        </div>
+        <nav class="mobile-nav">
+           <!-- <a href="#profile" class="nav-link">Profile</a> -->
+            <a href="#history" class="nav-link">History</a>
+            <a href="#start-workout" class="nav-link">Start Workout</a>
+            <a href="#exercises" class="nav-link">Exercises</a>
+        </nav>
+    </div>
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            <!-- Start Workout Page -->
+            <div id="start-workout-page" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Start Workout</h1>
+                </div>
+
+                <!-- Active Workout Section -->
+                <div id="active-workout" class="workout-container hidden">
+                    <div class="workout-header">
+                        <div>
+                            <div id="workout-date" class="workout-date"></div>
+                            <div id="workout-timer" class="workout-timer">00:00:00</div>
+                        </div>
+                        <div class="workout-actions">
+                            <button class="btn btn-outline" onclick="showExerciseSelector()">
+                                <i class="fas fa-plus"></i>
+                                Add Exercise
+                            </button>
+                            <button class="btn btn-primary" onclick="endCurrentWorkout()">
+                                End Workout
+                            </button>
+                        </div>
+                    </div>
+                    <div id="current-exercises" class="current-exercises">
+                        <!-- Current exercises will be added here -->
+                    </div>
+                </div>
+
+                <!-- Quick Start Section -->
+                <div id="workout-start" class="card mb-6">
+                    <div class="card-header">
+                        <h2 class="card-title">Quick Start</h2>
+                    </div>
+                    <div class="card-content">
+                        <button id="start-empty-workout" class="btn btn-primary btn-lg btn-block" onclick="startEmptyWorkout()">
+                            Start an Empty Workout
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Templates Section -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="card-title">Your Templates</h2>
+                        <button id="add-template-button" class="btn btn-outline" onclick="showTemplateCreator()">
+                            <i class="fas fa-plus mr-2"></i>
+                            Add New Template
+                        </button>
+                    </div>
+
+                    <div id="templates-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Templates will be inserted here -->
+                        <div class="card" id="no-templates-message">
+                            <div class="card-content text-center">
+                                <p class="text-muted">No custom templates yet. Create your first template!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Example Templates -->
+                <div>
+                    <h2 class="card-title mb-4">Example Templates</h2>
+                    <div class="template-grid">
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h3 class="template-title">Legs Day</h3>
+                                <div class="template-exercises">
+                                    <span class="exercise-item-template">Leg Press</span>
+                                    <span class="exercise-item-template">Standing Calf Raise</span>
+                                    <span class="exercise-item-template">Lying Leg Curl</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="startTemplateWorkout('legs')">Start Workout</button>
+                        </div>
+                        
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h3 class="template-title">Arms Day</h3>
+                                <div class="template-exercises">
+                                    <span class="exercise-item-template">Hammer Curl</span>
+                                    <span class="exercise-item-template">Cable Curl with Rope</span>
+                                    <span class="exercise-item-template">Tricep Pushdown</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="startTemplateWorkout('arms')">Start Workout</button>
+                        </div>
+
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h3 class="template-title">Chest Day</h3>
+                                <div class="template-exercises">
+                                    <span class="exercise-item-template">Bench Press</span>
+                                    <span class="exercise-item-template">Incline DB Press</span>
+                                    <span class="exercise-item-template">Cable Flyes</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="startTemplateWorkout('chest')">Start Workout</button>
+                        </div>
+
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h3 class="template-title">Back Day</h3>
+                                <div class="template-exercises">
+                                    <span class="exercise-item-template">Lat Pulldown</span>
+                                    <span class="exercise-item-template">Barbell Row</span>
+                                    <span class="exercise-item-template">Face Pull</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="startTemplateWorkout('back')">Start Workout</button>
+                        </div>
+
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h3 class="template-title">Full Body</h3>
+                                <div class="template-exercises">
+                                    <span class="exercise-item-template">Squat</span>
+                                    <span class="exercise-item-template">Bench Press</span>
+                                    <span class="exercise-item-template">Deadlift</span>
+                                    <span class="exercise-item-template">Shoulder Press</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="startTemplateWorkout('fullbody')">Start Workout</button>
+                        </div>
+
+                        <div class="template-card">
+                            <div class="template-header">
+                                <h3 class="template-title">Core Focus</h3>
+                                <div class="template-exercises">
+                                    <span class="exercise-item-template">Planks</span>
+                                    <span class="exercise-item-template">Russian Twists</span>
+                                    <span class="exercise-item-template">Ab Rollouts</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline" onclick="startTemplateWorkout('core')">Start Workout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Page -->
+            <div id="history-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Workout History</h1>
+                </div>
+                
+                <div id="workout-history-container">
+                    <!-- Workout history will be populated here -->
+                </div>
+                
+                <div id="no-workouts-message" class="text-center space-y-4">
+                    <p class="text-muted">No workouts performed. Completed workouts will appear here.</p>
+                    <button id="history-start-workout" class="btn btn-primary" onclick="navigateTo('start-workout')">
+                        Start Workout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="page">
+                <h1 class="page-title">Profile</h1>
+                
+                <div class="profile-container">
+                    <!-- User Info Section -->
+                    <div class="profile-section">
+                        <div class="profile-avatar">
+                            <span id="profile-initial">S</span>
+                        </div>
+                        <div class="profile-username" id="profile-username">Username</div>
+                        <div class="profile-email" id="profile-email">Not Logged In...</div>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Log Out
+                        </button>
+                    </div>
+
+                    <!-- Body Metrics Section -->
+                    <div class="metrics-section">
+                        <h2>Body Metrics</h2>
+                        <div class="metrics-subtitle">Please input weight and height to calculate BMI</div>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <label for="weight-input">Weight</label>
+                                <div class="metric-input-group">
+                                    <input 
+                                        type="number" 
+                                        id="weight-input" 
+                                        class="metric-input" 
+                                        placeholder="Enter weight"
+                                        step="0.1"
+                                    >
+                                    <span class="metric-unit">kg</span>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <label for="height-input">Height</label>
+                                <div class="metric-input-group">
+                                    <input 
+                                        type="number" 
+                                        id="height-input" 
+                                        class="metric-input" 
+                                        placeholder="Enter height"
+                                        step="0.1"
+                                    >
+                                    <span class="metric-unit">cm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="calculate-bmi" class="calculate-btn" onclick="calculateBMI()">
+                            Calculate BMI
+                        </button>
+                        <div id="bmi-result" class="bmi-result hidden">
+                            <div class="bmi-value">Your BMI: <span id="bmi-number"></span></div>
+                            <div class="bmi-category" id="bmi-category"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fitness Goals Section -->
+                    <div class="goals-section">
+                        <h2>Fitness Goals</h2>
+                        <div class="goals-message">
+                            No goals set. Click Edit Profile to add your fitness goals.
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
+            </div>
+
+            <!-- Exercises Page -->
+            <div id="exercises-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Exercises</h1>
+                </div>
+                
+                <div id="exercises-content">
+                    <div class="exercises-controls">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" 
+                                   id="exercise-search" 
+                                   placeholder="Search exercises..."
+                                   class="w-full">
+                        </div>
+                        
+                        <div class="filters-wrapper">
+                            <select id="muscle-filter" class="w-full">
+                                <option value="any">Any Body Part</option>
+                                <option value="abs">Abs</option>
+                                <option value="back">Back</option>
+                                <option value="biceps">Biceps</option>
+                                <option value="chest">Chest</option>
+                                <option value="forearms">Forearms</option>
+                                <option value="legs">Legs</option>
+                                <option value="shoulders">Shoulders</option>
+                                <option value="triceps">Triceps</option>
+                            </select>
+                            
+                            <select id="category-filter" class="w-full">
+                                <option value="any">Any Category</option>
+                                <option value="barbell">Barbell</option>
+                                <option value="dumbbell">Dumbbell</option>
+                                <option value="machine">Machine/Other</option>
+                                <option value="bodyweight">Bodyweight</option>
+                                <option value="cardio">Cardio</option>
+                            </select>
+
+                            <button id="saved-exercises-toggle" class="btn btn-outline" onclick="toggleSavedExercises()">
+                                <i class="fas fa-bookmark"></i>
+                                Saved Exercises
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="exercises-list" class="space-y-2">
+                        <!-- Exercise items will be dynamically populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Saved Exercises Page -->
+            <div id="saved-exercises-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Saved Exercises</h1>
+                </div>
+                <div id="saved-exercises-content">
+                    <div class="text-center p-8">
+                        <div class="mb-4">
+                            <i class="fas fa-bookmark text-gray-400" style="font-size: 4rem;"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">No Exercises Saved</h3>
+                        <p class="text-gray-600 mb-4">Your bookmarked exercises will appear here.</p>
+                        <button onclick="navigateTo('exercises')" class="btn btn-primary">
+                            Browse Exercises
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise Details Modal -->
+            <div id="exercise-modal" class="modal">
+                <div class="modal-content">
+                    <div class="p-6">
+                        <button class="close-button" onclick="closeExerciseModal()">×</button>
+                        <div id="exercise-modal-content"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workout Modal -->
+            <div id="workout-modal" class="modal">
+                <div class="modal-content workout-modal">
+                    <div class="workout-modal-header">
+                        <div class="workout-date"></div>
+                        <div class="workout-timer">
+                            <span id="timer-display">00:00:00</span>
+                            <button id="timer-toggle" class="btn-primary">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                        <button class="close-btn" onclick="closeWorkoutModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="workout-content">
+                        <div id="exercise-selection" style="display: none;">
+                            <div class="search-wrapper">
+                                <i class="fas fa-search search-icon"></i>
+                                <input type="text" id="workout-exercise-search" placeholder="Search exercises...">
+                            </div>
+                            <div class="filters-wrapper">
+                                <select id="workout-muscle-filter">
+                                    <option value="any">Any Muscle Group</option>
+                                    <option value="chest">Chest</option>
+                                    <option value="back">Back</option>
+                                    <option value="shoulders">Shoulders</option>
+                                    <option value="legs">Legs</option>
+                                    <option value="arms">Arms</option>
+                                    <option value="core">Core</option>
+                                </select>
+                                <select id="workout-category-filter">
+                                    <option value="any">Any Category</option>
+                                    <option value="barbell">Barbell</option>
+                                    <option value="dumbbell">Dumbbell</option>
+                                    <option value="machine">Machine</option>
+                                    <option value="bodyweight">Bodyweight</option>
+                                    <option value="cardio">Cardio</option>
+                                </select>
+                            </div>
+                            <div id="workout-exercise-list" class="exercise-list">
+                                <!-- Exercises will be listed here -->
+                            </div>
+                        </div>
+
+                        <div id="current-workout">
+                            <div id="selected-exercises">
+                                <!-- Selected exercises will appear here -->
+                            </div>
+                            <div class="workout-actions">
+                                <button onclick="showExerciseSelection()" class="btn-primary">
+                                    <i class="fas fa-plus"></i> Add Exercise
+                                </button>
+                                <button onclick="cancelWorkout()" class="btn-secondary">
+                                    Cancel Workout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content auth-container">
+            <button class="close-button" onclick="closeAuthModal()">&times;</button>
+            <div class="auth-header">
+                <h2 id="auth-subtitle" class="auth-subtitle">Sign in to your account</h2>
+                </div>
+            <div class="auth-tabs">
+                <button id="login-tab" class="tab-button active" onclick="showTab('login')">Sign In</button>
+                <button id="register-tab" class="tab-button" onclick="showTab('register')">Sign Up</button>
+                    </div>
+            <div id="login-tab-content" class="tab-content active">
+                <form id="login-form" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <input type="text" id="login-username" required>
+                </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="primary-button">Sign In</button>
+                </form>
+                    </div>
+            <div id="register-tab-content" class="tab-content">
+                <form id="register-form" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="register-username">Username</label>
+                        <input type="text" id="register-username" required>
+                </div>
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required>
+                    </div>
+                    <button type="submit" class="primary-button">Create Account</button>
+                </form>
+                    </div>
+            <div class="auth-footer">
+                <p id="auth-footer-text" class="auth-footer-text">
+                    No account yet? <span class="auth-footer-link" onclick="showTab('register')">Sign up</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden">
+        <div id="toast-icon" class="success">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+        </div>
+        <div id="toast-content">
+            <h3 id="toast-title">Success</h3>
+            <p id="toast-message">Action completed successfully</p>
+        </div>
+        <button id="close-toast">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Workout Template Modal -->
+    <div id="template-workout-modal" class="modal">
+        <div class="modal-content workout-modal">
+            <div class="workout-modal-header">
+                <div>
+                    <h2 id="template-workout-title" class="workout-title"></h2>
+                    <div id="template-workout-date" class="workout-date"></div>
+                </div>
+                <div class="workout-timer">
+                    <span id="template-timer-display">00:00:00</span>
+                    <button id="template-timer-toggle" class="btn-primary">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                <button class="close-btn" onclick="closeTemplateWorkoutModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="workout-content">
+                <div id="template-exercises-list" class="exercise-list">
+                    <!-- Exercises will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this modal structure at the bottom of the body tag -->
+    <div id="add-template-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Template</h2>
+                <button class="close-btn" onclick="closeAddTemplateModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="template-form">
+                    <input type="text" id="template-name" placeholder="Template Name" class="template-input">
+                    <div class="exercise-selection">
+                        <h3>Select Exercises</h3>
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" 
+                                   id="template-exercise-search" 
+                                   placeholder="Search exercises..."
+                                   class="search-input">
+                        </div>
+                        <div id="template-exercise-list" class="exercise-list">
+                            <!-- Exercises will be populated here -->
+                        </div>
+                    </div>
+                    <div class="selected-exercises">
+                        <h3>Selected Exercises</h3>
+                        <div id="selected-template-exercises" class="selected-list">
+                            <!-- Selected exercises will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveTemplate()">Save Template</button>
+            </div>
+        </div>
+    </div>
+
+  <script src="script.js" ></script>
+</body>
+</html>
