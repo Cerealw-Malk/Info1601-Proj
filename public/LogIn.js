@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+import { getAuth,createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js";
 import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -24,13 +24,28 @@ export default firebaseConfig;
 export { app, analytics };
 
 //inputs
-const email = document.getElementById("email");
-const password = document.getElementById("password");
+const email = document.getElementById("email").value;
+const password = document.getElementById("password").value;
 
 //submit button
 
 const submit = document.getElementById("submit");
 submit.addEventListener("click",function(event){
     event.preventDefault()
-    alert("Login button clicked")
+    createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        alert("Creating user....")
+        console.log(user);
+        window.location.href = "Home.html"
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode,errorMessage);
+        alert(errorMessage)
+        // ..
+      });
 })
