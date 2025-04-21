@@ -41,6 +41,79 @@
             </div>
         </div>
     </header>
+
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="page">
+        <h1 class="page-title">Profile</h1>
+        
+        <div class="profile-container">
+            <!-- User Info Section -->
+            <div class="profile-section">
+                <div class="profile-avatar">
+                    <span id="profile-initial">S</span>
+                </div>
+                <div class="profile-username" id="profile-username">Username</div>
+                <div class="profile-email" id="profile-email">Not Logged In...</div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </button>
+            </div>
+
+            <!-- Body Metrics Section -->
+            <div class="metrics-section">
+                <h2>Body Metrics</h2>
+                <div class="metrics-subtitle">Please input weight and height to calculate BMI</div>
+                <div class="metrics-grid">
+                    <div class="metric-item">
+                        <label for="weight-input">Weight</label>
+                        <div class="metric-input-group">
+                            <input 
+                                type="number" 
+                                id="weight-input" 
+                                class="metric-input" 
+                                placeholder="Enter weight"
+                                step="0.1"
+                            >
+                            <span class="metric-unit">kg</span>
+                        </div>
+                    </div>
+                    <div class="metric-item">
+                        <label for="height-input">Height</label>
+                        <div class="metric-input-group">
+                            <input 
+                                type="number" 
+                                id="height-input" 
+                                class="metric-input" 
+                                placeholder="Enter height"
+                                step="0.1"
+                            >
+                            <span class="metric-unit">cm</span>
+                        </div>
+                    </div>
+                </div>
+                <button id="calculate-bmi" class="calculate-btn" onclick="calculateBMI()">
+                    Calculate BMI
+                </button>
+                <div id="bmi-result" class="bmi-result hidden">
+                    <div class="bmi-value">Your BMI: <span id="bmi-number"></span></div>
+                    <div class="bmi-category" id="bmi-category"></div>
+                </div>
+            </div>
+
+            <!-- Fitness Goals Section -->
+            <div class="goals-section">
+                <h2>Fitness Goals</h2>
+                <div class="goals-message">
+                    No goals set. Click Edit Profile to add your fitness goals.
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
+    </div>
+
+
+    <script src="script.js"></script>
 </body>
 
 

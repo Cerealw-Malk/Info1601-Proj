@@ -1294,7 +1294,9 @@ main {
     padding-top: 0.25rem;
 }
 
-
+.page {
+    display: none;
+}
 
 .page.active {
     display: block;
