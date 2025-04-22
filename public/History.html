@@ -19,7 +19,7 @@
                 <nav class="main-nav">
                     
                     <a href="Profile.html" class="nav-link">Profile</a>
-                    <a href="History.html" class="nav-link">History</a>
+                    <a href="History.html" class="nav-link active">History</a>
                     <a href="Start-Workout.html" class="nav-link">Start Workout</a>
                     <a href="Exercises.html" class="nav-link">Exercises</a>
                 </nav>
@@ -41,6 +41,26 @@
             </div>
         </div>
     </header>
+
+    <!-- History Page -->
+    <div id="history-page" class="page">
+        <div class="page-header">
+            <h1 class="page-title">Workout History</h1>
+        </div>
+        
+        <div id="workout-history-container">
+            <!-- Workout history will be populated here -->
+        </div>
+        
+        <div id="no-workouts-message" class="text-center space-y-4">
+            <p class="text-muted">No workouts performed. Completed workouts will appear here.</p>
+            <button id="history-start-workout" class="btn btn-primary" onclick="navigateTo('start-workout')">
+                Start Workout
+            </button>
+        </div>
+    </div>
+
+    
 </body>
 
 

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gymmetry - Workout Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css"> 
+</head>
+
+
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo" id="logo">Gymmetry</a>
+                
+                <!-- Desktop Navigation -->
+                <nav class="main-nav">
+                    
+                    <a href="Profile.html" class="nav-link">Profile</a>
+                    <a href="History.html" class="nav-link">History</a>
+                    <a href="Start-Workout.html" class="nav-link  active">Start Workout</a>
+                    <a href="Exercises.html" class="nav-link">Exercises</a>
+                </nav>
+                
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" id="mobile-menu-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <!-- User Profile -->
+                <div class="user-profile" id="user-profile">
+                    <div class="avatar" id="user-avatar">?</div>
+                    <span class="login-status" id="login-status">Logged out</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+     <!-- Start Workout Page -->
+     <div id="start-workout-page" class="page active">
+        <div class="page-header">
+            <h1 class="page-title">Start Workout</h1>
+        </div>
+
+        <!-- Active Workout Section -->
+        <div id="active-workout" class="workout-container hidden">
+            <div class="workout-header">
+                <div>
+                    <div id="workout-date" class="workout-date"></div>
+                    <div id="workout-timer" class="workout-timer">00:00:00</div>
+                </div>
+                <div class="workout-actions">
+                    <button class="btn btn-outline" onclick="showExerciseSelector()">
+                        <i class="fas fa-plus"></i>
+                        Add Exercise
+                    </button>
+                    <button class="btn btn-primary" onclick="endCurrentWorkout()">
+                        End Workout
+                    </button>
+                </div>
+            </div>
+            <div id="current-exercises" class="current-exercises">
+                <!-- Current exercises will be added here -->
+            </div>
+        </div>
+
+        <!-- Quick Start Section -->
+        <div id="workout-start" class="card mb-6">
+            <div class="card-header">
+                <h2 class="card-title">Quick Start</h2>
+            </div>
+            <div class="card-content">
+                <button id="start-empty-workout" class="btn btn-primary btn-lg btn-block" onclick="startEmptyWorkout()">
+                    Start an Empty Workout
+                </button>
+            </div>
+        </div>
+
+        <!-- Templates Section -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="card-title">Your Templates</h2>
+                <button id="add-template-button" class="btn btn-outline" onclick="showTemplateCreator()">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add New Template
+                </button>
+            </div>
+
+            <div id="templates-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Templates will be inserted here -->
+                <div class="card" id="no-templates-message">
+                    <div class="card-content text-center">
+                        <p class="text-muted">No custom templates yet. Create your first template!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Templates -->
+        <div>
+            <h2 class="card-title mb-4">Example Templates</h2>
+            <div class="template-grid">
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3 class="template-title">Legs Day</h3>
+                        <div class="template-exercises">
+                            <span class="exercise-item-template">Leg Press</span>
+                            <span class="exercise-item-template">Standing Calf Raise</span>
+                            <span class="exercise-item-template">Lying Leg Curl</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="startTemplateWorkout('legs')">Start Workout</button>
+                </div>
+                
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3 class="template-title">Arms Day</h3>
+                        <div class="template-exercises">
+                            <span class="exercise-item-template">Hammer Curl</span>
+                            <span class="exercise-item-template">Cable Curl with Rope</span>
+                            <span class="exercise-item-template">Tricep Pushdown</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="startTemplateWorkout('arms')">Start Workout</button>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3 class="template-title">Chest Day</h3>
+                        <div class="template-exercises">
+                            <span class="exercise-item-template">Bench Press</span>
+                            <span class="exercise-item-template">Incline DB Press</span>
+                            <span class="exercise-item-template">Cable Flyes</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="startTemplateWorkout('chest')">Start Workout</button>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3 class="template-title">Back Day</h3>
+                        <div class="template-exercises">
+                            <span class="exercise-item-template">Lat Pulldown</span>
+                            <span class="exercise-item-template">Barbell Row</span>
+                            <span class="exercise-item-template">Face Pull</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="startTemplateWorkout('back')">Start Workout</button>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3 class="template-title">Full Body</h3>
+                        <div class="template-exercises">
+                            <span class="exercise-item-template">Squat</span>
+                            <span class="exercise-item-template">Bench Press</span>
+                            <span class="exercise-item-template">Deadlift</span>
+                            <span class="exercise-item-template">Shoulder Press</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="startTemplateWorkout('fullbody')">Start Workout</button>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-header">
+                        <h3 class="template-title">Core Focus</h3>
+                        <div class="template-exercises">
+                            <span class="exercise-item-template">Planks</span>
+                            <span class="exercise-item-template">Russian Twists</span>
+                            <span class="exercise-item-template">Ab Rollouts</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="startTemplateWorkout('core')">Start Workout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id></form>
+
+</body>
+
+
+
+</html>

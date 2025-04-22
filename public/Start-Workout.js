@@ -11,3 +11,4 @@ const pages = {
     'exercises': document.getElementById('exercises-page'),
     'saved-exercises': document.getElementById('saved-exercises-page')
 };
+
