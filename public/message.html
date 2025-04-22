@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gymmetry</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    input, select {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      min-width: 200px;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      color: #2c3e50;
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+
+    .exercise-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .exercise-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-content {
+      padding: 20px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .exercise-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      color: #2980b9;
+    }
+
+    .exercise-card p {
+      font-size: 0.95rem;
+      color: #555;
+      margin: 4px 0;
+    }
+
+    .favorite-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: #ccc;
+      transition: color 0.3s ease;
+    }
+
+    .favorite-btn.favorited {
+      color: #e74c3c;
+    }
+
+    .loading {
+      text-align: center;
+      color: #888;
+    }
+
+    .card-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .card-content::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Gymmetry</h1>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Search by name...">
+    <select id="typeSelect">
+      <option value="">All Types</option>
+    </select>
+  </div>
+
+  <div>
+    <div class="section-title">❤️ Your Favorites</div>
+    <div id="favorites-list" class="exercise-list"></div>
+  </div>
+
+  <div id="exercise-container" class="loading">Loading exercises...</div>
+
+  <script>
+    const apiKey = 'XH4e/jzSUUzEpMqnNiqK8g==kq3PnHE7FtMSkYxZ'; // 🔑 Add your API key here
+    let allExercises = [];
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+    const exerciseContainer = document.getElementById('exercise-container');
+    const favoritesList = document.getElementById('favorites-list');
+    const searchInput = document.getElementById('searchInput');
+    const typeSelect = document.getElementById('typeSelect');
+
+    function saveFavorites() {
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+
+    function toggleFavorite(exercise) {
+      const index = favorites.findIndex(fav => fav.name === exercise.name);
+      if (index === -1) {
+        favorites.push(exercise);
+      } else {
+        favorites.splice(index, 1);
+      }
+      saveFavorites();
+      renderFavorites();
+      filterExercises(); // Refresh cards
+    }
+
+    function isFavorite(exercise) {
+      return favorites.some(fav => fav.name === exercise.name);
+    }
+
+    function createCard(exercise) {
+      const card = document.createElement('div');
+      card.className = 'exercise-card';
+
+      const favoriteClass = isFavorite(exercise) ? 'favorited' : '';
+      card.innerHTML = `
+        <button class="favorite-btn ${favoriteClass}" title="Toggle Favorite">&#9733;</button>
+        <div class="card-content">
+          <h3>${exercise.name}</h3>
+          <p><strong>Type:</strong> ${exercise.type}</p>
+          <p><strong>Muscle:</strong> ${exercise.muscle}</p>
+          <p><strong>Equipment:</strong> ${exercise.equipment}</p>
+          <p><strong>Difficulty:</strong> ${exercise.difficulty}</p>
+          <p><strong>Instructions:</strong> ${exercise.instructions}</p>
+        </div>
+      `;
+
+      card.querySelector('.favorite-btn').addEventListener('click', () => toggleFavorite(exercise));
+      return card;
+    }
+
+    function renderFavorites() {
+      favoritesList.innerHTML = '';
+      favorites.forEach(ex => {
+        const card = createCard(ex);
+        favoritesList.appendChild(card);
+      });
+    }
+
+    function groupByMuscle(exercises) {
+      const grouped = {};
+      exercises.forEach(ex => {
+        if (!grouped[ex.muscle]) grouped[ex.muscle] = [];
+        grouped[ex.muscle].push(ex);
+      });
+      return grouped;
+    }
+
+    function displayGroupedExercises(groupedExercises) {
+      exerciseContainer.innerHTML = '';
+
+      for (const muscle in groupedExercises) {
+        const section = document.createElement('div');
+        section.className = 'muscle-group';
+
+        const title = document.createElement('div');
+        title.className = 'section-title';
+        title.textContent = muscle.charAt(0).toUpperCase() + muscle.slice(1);
+
+        const list = document.createElement('div');
+        list.className = 'exercise-list';
+
+        groupedExercises[muscle].forEach(ex => {
+          const card = createCard(ex);
+          list.appendChild(card);
+        });
+
+        section.appendChild(title);
+        section.appendChild(list);
+        exerciseContainer.appendChild(section);
+      }
+    }
+
+    function filterExercises() {
+      const search = searchInput.value.toLowerCase();
+      const type = typeSelect.value;
+
+      const filtered = allExercises.filter(ex => {
+        return ex.name.toLowerCase().includes(search) &&
+          (type === '' || ex.type === type);
+      });
+
+      const grouped = groupByMuscle(filtered);
+      displayGroupedExercises(grouped);
+    }
+
+    fetch('https://api.api-ninjas.com/v1/exercises', {
+      headers: { 'X-Api-Key': apiKey }
+    })
+      .then(res => res.json())
+      .then(data => {
+        allExercises = data;
+        exerciseContainer.classList.remove('loading');
+
+        const uniqueTypes = [...new Set(data.map(ex => ex.type))];
+        uniqueTypes.sort().forEach(type => {
+          const option = document.createElement('option');
+          option.value = type;
+          option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+          typeSelect.appendChild(option);
+        });
+
+        filterExercises();
+        renderFavorites();
+      })
+      .catch(err => {
+        console.error(err);
+        exerciseContainer.innerHTML = 'Failed to load exercises.';
+      });
+
+    searchInput.addEventListener('input', filterExercises);
+    typeSelect.addEventListener('change', filterExercises);
+  </script>
+
+</body>
+</html>
